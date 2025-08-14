@@ -90,6 +90,7 @@ ORDER BY total_visits DESC
 ***3. Revenue by traffic source by week, by month in June 2017***
 - Query:
 ```sql
+# separate week and month to count each separately
 WITH wek AS( SELECT DISTINCT FORMAT_DATE('%Y%W',PARSE_DATE('%Y%m%d',date)) time,
               trafficSource.source,
               ROUND(SUM(product.productRevenue/1000000) OVER(PARTITION BY trafficSource.source,FORMAT_DATE('%Y%W',PARSE_DATE('%Y%m%d',date))),2) revenue
@@ -106,7 +107,7 @@ WITH wek AS( SELECT DISTINCT FORMAT_DATE('%Y%W',PARSE_DATE('%Y%m%d',date)) time,
             UNNEST (hits.product) product
             WHERE product.productRevenue IS NOT NULL
 )
-
+# Union these 2 into 1 table
 SELECT 'Week'AS time_type, *
 FROM wek
 UNION ALL 
@@ -124,9 +125,12 @@ ORDER BY revenue DESC
 | 4   | Month     | 201706 | google   | 18,757.18   |
 | 5   | Week      | 201723 | (direct) | 17,325.68   |
 
+- The direct source in June 2017 made the highest revenue, and most of the sources that made the most revenue was direct
+
 ***4. Average number of pageviews by purchaser type (purchasers vs non-purchasers) in June, July 2017.***
 - Query:
 ```sql
+# Separate the purchase and non-purchase to calculate each
 WITH pur AS(
       SELECT FORMAT_DATE('%Y%m',PARSE_DATE('%Y%m%d',date)) month,
              ROUND(SUM(totals.pageviews)/
@@ -151,7 +155,7 @@ WITH pur AS(
         AND totals.transactions IS NULL
       GROUP BY FORMAT_DATE('%Y%m',PARSE_DATE('%Y%m%d',date))
       )                                                     
-
+# Join purchase and no-purchase connect by monthmonth
 SELECT p.month, p.avg_pageviews_purchase, n.avg_pageviews_non_purchase
 FROM pur AS p
 JOIN non_pur AS n
@@ -246,11 +250,15 @@ ORDER BY 2 DESC
 | 4   | Google Women's Short Sleeve Hero Tee Red Heather | 4        |
 | 5   | YouTube Men's Fleece Hoodie Black                | 3        |
 
+- People who prefer the Henley style usually search for Sunglasses as an accessory.
+- They also search for some women's stuff like shirts, lip balm, and sleeves, Maybe someone bought the Henley as a gift.
+- Recommend those products after the user finishes purchasing
+
 ***8. Calculate the cohort map from product view to add to cart to purchase in Jan, Feb, and March 2017. For example, 100% product view, then 40% add_to_cart, and 10% purchase.***
 
 - Query
 ```sql
-# Count each action type apear in each month 
+# Count each action type appears in each month 
 WITH n_view AS(
             SELECT FORMAT_DATE('%Y%m',PARSE_DATE('%Y%m%d',date)) month,
                     COUNT(eCommerceAction.action_type) as num_product_view
@@ -302,7 +310,8 @@ ORDER BY a.month
 | 2   | 201702 | 21489            | 7360          | 2060         | 34.25            | 9.59          |
 | 3   | 201703 | 23549            | 8782          | 2977         | 37.29            | 12.64         |
 
-
+- The purchase and add to card rate are rising month-on-month, the purchase rate has grown more than 50% in March compared to January.
+- The product view decreased slightly by 8% from January to March -> Need to encourage people to click open the page
 
 
 
