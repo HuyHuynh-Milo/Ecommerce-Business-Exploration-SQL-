@@ -210,6 +210,8 @@ FROM july;
 | 201706  | 94.02                  | 316.87                     |
 | 201707  | 124.24                 | 334.06                     |
 
+- The average pageviews of non-purchases is x3 that of the purchase, it might because some users just want to check for the product, price or compare price to other stores.
+- Sugest investigate more on a specific page or products
 ***5. Average number of transactions per user that made a purchase in July 2017***
 
 
